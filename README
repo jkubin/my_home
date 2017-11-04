@@ -1,0 +1,20 @@
+How to use the scripts.
+
+$ wget http://ww1.microchip.com/downloads/en/softwarelibrary/microchip-libraries-for-applications-v2013-06-15-windows-installer.exe
+
+$ chmod +x microchip-libraries-for-applications-v2013-06-15-windows-installer.exe
+
+$ ./microchip-libraries-for-applications-v2013-06-15-windows-installer.exe
+
+...
+install library wherewer you want
+...
+
+$ cd microchip_solutions_v2013-06-15
+$ moralizer
+$ patch -t -p2 < microchip_solutions_v2013-06-15.patch
+$ cd USB/Device_-_HID_-_Mouse/Firmware/
+$ ln -s ~/Makefile
+$ make all
+$ vim preproc/mouse.c		press Ctrl-h at symbol you want to display in preview window
+

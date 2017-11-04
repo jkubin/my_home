@@ -1,0 +1,137 @@
+#!/bin/bash
+# 2015/07/09 Josef Kubin
+# ----------------------------------------------------------------------------
+# "THE BEER-WARE LICENSE" (Revision 42):
+# <opentracer_gmail...> wrote this file. As long as you retain this notice you
+# can do whatever you want with this stuff. If we meet some day, and you think
+# this stuff is worth it, you can buy me a beer in return.         Josef Kubin
+# ----------------------------------------------------------------------------
+
+# the script converts C source files to more readable format
+# designed for Microchip Libraries for Applications (MLA)
+
+
+# fix names because of scripts and ctags
+# from "the Cruel/# Path/to Windoze/H E L L.c"
+# to   "the_Cruel/# Path/to_Windoze/H_E_L_L.c"
+
+echo renaming paths ...
+
+# change the 'Internal Field Separator' to LF
+IFS=$'\n'
+# create sorted list of depths of the tree
+for i in `find -mindepth 1 -type d -printf '%d\n' | sort -run`
+do
+	# traverse tree from leafs to root and fix the names
+	for j in `find -mindepth $i -maxdepth $i`
+	do
+		old_name=$(basename "${j}")
+		fix_name=${old_name// /_}
+
+		# something has been changed
+		if [ "$old_name" != "$fix_name" ]
+		then
+			dir_path=$(dirname "${j}")
+			# echo "$dir_path/$old_name	--->	$dir_path/$fix_name"
+			mv $dir_path/$old_name $dir_path/$fix_name
+		fi
+	done
+done
+
+echo transforming the source code ...
+
+for i in `find -iname '*.[chs]' -o -iname '*.asm'`
+do
+
+	# fixes paths inside of source files (include)
+	# #include "Include\H E L L.h"
+	# to
+	# #include "Include/H_E_L_L.h"
+
+	perl -pi -e '
+
+	# remove \n
+	chomp;
+
+	# remove M$ teletype garbage
+	s/\r$//;
+
+	# hide forbidden character (because of "indent")
+	s/\x00/NULL/g;
+
+	# remove trailing white spaces
+	s/\s+$//;
+
+	# src file sometimes contains strange things ...
+	s/\r/\n/g;
+
+	# convert all xdigits to lower case, because I like it
+	s/\b0[xX][[:xdigit:]]+/\L$&/g;
+
+	# fix include path
+	if (/#\s*\binclude\b\s*/) {
+
+		# split include pattern to three parts
+		if (($include, $path, $trailing_chars)=/(.*[<"])(.*)([">].*)/) {
+
+			# substitute spaces to underscores
+			$path=~s/ /_/g;
+
+			# substitute idiotic M$ backslashes to slashes
+			$path=~s:\\:/:g;
+
+			# delete needless ./ prefix
+			$path=~s:^\./::;
+
+			# put splitted parts together
+			$_=$include . $path . $trailing_chars;
+		}
+	};
+
+	# append additional LF to the end of file, because I like it
+	if (eof && not /^$/) {
+		s/$/\n/;
+	}
+
+	# put LF back
+	s/$/\n/;
+
+	' $i
+
+	# extract lower case extension
+	filename=$(basename "${i}")
+	extension="${filename##*.}"
+	extension=${extension,,};
+
+	# transform c and h files
+	if [ "$extension" == "c" ] || [ "$extension" == "h" ]
+	then
+
+		###############################################################################
+		###############################################################################
+		# uncomment just ONE option!
+		deodor_ansi $i > $$; mv $$ $i;
+		#deodor_c99 $i > $$; mv $$ $i;
+		#deodor_kernel $i > $$; mv $$ $i;
+		# deodor_kernel_user_space $i > $$; mv $$ $i;
+		###############################################################################
+		###############################################################################
+
+		# You have to apply the following script to the bunch of header files that accompany the compiler!
+		# I mean: ~/.wine/drive_c/MCC18/h/
+		# If you did, uncomment following line!
+		deodor_mcc18_h $i > $$; mv $$ $i;
+
+		# change the source code to my indent style
+		my_indent_style $i
+	fi
+
+done
+
+echo final cleansing ...
+
+find \( -iname '*.mcp' -o -iname '*.htm' -o -iname '*.html' -o -iname '*.css' -o -iname '*.cgi' -o -iname '*.asm' -o -iname '*.S' -o -iname '*.lkr' -o -iname '*.gld' -o -iname '*.txt' -o -iname '*.xsl' -o -iname '*.xml' -o -name '*.cpp' -o -name '*.js' -o -iname '*.mib' -o -iname '*.inc' -o -iname '*.boot' \) -exec dos2unix -q {} \;
+find -iname '*.mcp' -exec sed -i '/^file\|^dir/s/ /_/g' {} \;
+
+echo done.
+

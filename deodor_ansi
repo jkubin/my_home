@@ -1,0 +1,62 @@
+#!/bin/sed -f
+# 2017/10/22 Josef Kubin
+# ----------------------------------------------------------------------------
+# "THE BEER-WARE LICENSE" (Revision 42):
+# <opentracer_gmail...> wrote this file. As long as you retain this notice you
+# can do whatever you want with this stuff. If we meet some day, and you think
+# this stuff is worth it, you can buy me a beer in return.         Josef Kubin
+# ----------------------------------------------------------------------------
+
+# replaces crazy data types for something better
+
+################################################################################
+# the first block deletes crazy typedefs
+# keep it first, because of effectivity
+/typedef char\s\+CHAR8;/d
+/typedef signed char\s\+CHAR;/d
+/typedef signed char\s\+INT8;/d
+/typedef signed int\s\+INT;/d
+/typedef signed long\s\+LONG;/d
+/typedef signed long int\s\+INT32;/d
+/typedef signed long long\s\+LONGLONG;/d
+/typedef signed short int\s\+INT16;/d
+/typedef signed short int\s\+SHORT;/d
+/typedef unsigned char\s\+BYTE;/d
+/typedef unsigned char\s\+UCHAR8;/d
+/typedef unsigned char\s\+UINT8;/d
+/typedef unsigned int\s\+UINT;/d
+/typedef unsigned long\s\+DWORD;/d
+/typedef unsigned long int\s\+UINT32;/d
+/typedef unsigned long long\s\+QWORD;/d
+/typedef unsigned short int\s\+UINT16;/d
+/typedef unsigned short int\s\+WORD;/d
+/typedef unsigned short long\s\+SWORD;/d
+/typedef unsigned short long\s\+UINT24;/d
+/typedef unsigned long long\s\+UINT64;/d
+/typedef void\s\+VOID;/d
+
+################################################################################
+# substitute deleted typedefs to generic data types
+s/\<BYTE\>/unsigned char/g
+s/\<CHAR8\>/char/g
+s/\<CHAR\>/signed char/g
+s/\<DWORD\>/unsigned long/g
+s/\<INT16\>/signed short int/g
+s/\<INT32\>/signed long int/g
+s/\<INT8\>/signed char/
+s/\<INT\>/signed int/g
+s/\<LONG\>/signed long/g
+s/\<QWORD\>\|\<UINT64\>/unsigned long long/g
+s/\<SHORT\>/signed short int/g
+s/\<UCHAR8\>/unsigned char/g
+s/\<UINT16\>\|\<WORD\>/unsigned int/g
+s/\<UINT24\>\|\<SWORD\>/unsigned short long/g
+s/\<UINT32\>/unsigned long int/g
+s/\<UINT8\>/unsigned char/g
+s/\<UINT\>/unsigned int/g
+
+# the following keywords must not be converted!
+# preprocessor converts them later according to selected MCU
+# s/\<ROM\>/rom/g
+# s/\<ROM\>/const/g
+

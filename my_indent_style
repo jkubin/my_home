@@ -1,0 +1,81 @@
+#!/bin/bash
+# 2017/10/22 Josef Kubin
+# ----------------------------------------------------------------------------
+# "THE BEER-WARE LICENSE" (Revision 42):
+# <opentracer_gmail...> wrote this file. As long as you retain this notice you
+# can do whatever you want with this stuff. If we meet some day, and you think
+# this stuff is worth it, you can buy me a beer in return.         Josef Kubin
+# ----------------------------------------------------------------------------
+
+# how it works:
+# 1) hide PIC18 _asm ... _endasm to comment
+# 2) run indent
+# 3) unhide PIC18 _asm ... _endasm from comment
+
+# I like the following one-liner which seems to be a little bit cryptic ...
+# sed -i '/_asm/{:a;/_endasm/!{N;ba};s:_asm:/*&:;s:_endasm:&*/:;s/\n/\\n/g;};' $1
+
+# lets decipher the one-liner
+sed -i '
+# if the line in buffer contains _asm (sub)string go farther
+/_asm/ {
+	# here is a branch (or goto) label named "a"
+	:a;
+
+	# if the line in buffer does not contain (sub)string _endasm go farther
+	/_endasm/! {
+
+		# append next line to buffer
+		N;
+
+		# and branch (or goto) to label "a" (this is similar to while (...) {} construct)
+		ba;
+	};
+
+	# now we have complete (concatenated) _asm\n paragraph\n ... \n_endasm in buffer
+
+	# and hide asm content to C comment
+	s:_asm:/*&:;
+	s:_endasm:&*/:;
+
+	# substitute all new line characters in buffer (0x0a) to "\n" escape sequence
+	s/\n/\\n/g;
+};
+
+' $1
+
+# Embedding special "control comments" in the program is not applicable for my purpose
+# I mean
+# /* *INDENT-OFF* */
+# /* *INDENT-ON* */
+# therefore I use (magic) sed script
+# I did both of them.
+
+# too cryptic?
+# see "pinfo indent"
+# and change to your habits
+indent -kr -bls -ppi 2 -il0 -ip0 -cli4 -cbi4 -ts4 -cdw -nhnl -nlp -ci8 -nbbo -l200 -c45 -o $1 $1
+
+# sed -i '/_asm/{s:/\*_asm:_asm:;s:_endasm\*/:_endasm:;s/\\n/\n/g};s/\<0 b/0b/;${/^$/!s/$/\n/}' $1
+# lets decipher the one-liner
+sed -i '
+# if the line in buffer contains _asm (sub)string go farther
+/_asm/ {
+	# remove previous comment
+	s:/\*_asm:_asm:;
+	s:_endasm\*/:_endasm:;
+
+	# substitute \n to 0x0a
+	s/\\n/\n/g;
+};
+
+# the indent tool has an unfixed bug, here is a quick fix until the indent tool will be fixed
+s/\<0 b/0b/;
+
+# do something on the last line in source file
+${
+	# if the last line is NOT empty, append additional empty line
+	/^$/!s/$/\n/
+}
+' $1
+

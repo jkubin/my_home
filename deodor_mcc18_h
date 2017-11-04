@@ -1,0 +1,52 @@
+#!/bin/sed -f
+# 2017/10/22 Josef Kubin
+# ----------------------------------------------------------------------------
+# "THE BEER-WARE LICENSE" (Revision 42):
+# <opentracer_gmail...> wrote this file. As long as you retain this notice you
+# can do whatever you want with this stuff. If we meet some day, and you think
+# this stuff is worth it, you can buy me a beer in return.         Josef Kubin
+# ----------------------------------------------------------------------------
+
+# substitutions for mcc18 header files and all affected files
+
+################################################################################
+# the first block deletes crazy typedefs
+
+/typedef BOOL\s\+XEE_RESULT;/d
+
+################################################################################
+# substitute unwanted things
+
+# it usually takes significantly more time to read the code than to write it
+s/\<CamelCaseIsNotSoEasyToRead\>/sneak_case_seems_to_be_clearer/g
+
+# convert to lower case, because UPPER_CASE names are usually macros
+s/\<BIT\>/\L&/g
+s/\<BOOL\>/\L&/g
+s/\<BYTE_BITS\>/\L&/g
+s/\<BYTE_VAL\>/\L&/g
+s/\<CLEAR\>/\L&/g
+s/\<DWORD_VAL\>/\L&/g
+s/\<FALSE\>/\L&/g
+s/\<QWORD_VAL\>/\L&/g
+s/\<SET\>/\L&/g
+s/\<TRUE\>/\L&/g
+s/\<UINT16_BITS\>/\L&/g
+s/\<UINT16_VAL\>/\L&/g
+s/\<UINT24_BITS\>/\L&/g
+s/\<UINT24_VAL\>/\L&/g
+s/\<UINT32_VAL\>/\L&/g
+s/\<UINT8_BITS\>/\L&/g
+s/\<UINT8_VAL\>/\L&/g
+s/\<VOID\>/\L&/g
+s/\<WORD_BITS\>/\L&/g
+s/\<WORD_VAL\>/\L&/g
+s/\<_BIT\>/\L&/g
+s/\<_BOOL\>/\L&/g
+
+s/\<XEE_RESULT\>/bool/g
+
+# /\<define\>\|\<catch\>/! {
+# 	/[^[:space:]]}/s/}/\n}/g
+# }
+
