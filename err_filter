@@ -1,0 +1,36 @@
+#!/bin/sed -uf
+# 2014/09/17 Josef Kubin
+# ----------------------------------------------------------------------------
+# "THE BEER-WARE LICENSE" (Revision 42):
+# <opentracer_gmail...> wrote this file. As long as you retain this notice you
+# can do whatever you want with this stuff. If we meet some day, and you think
+# this stuff is worth it, you can buy me a beer in return.         Josef Kubin
+# ----------------------------------------------------------------------------
+
+# remove M$ teletype garbage (uklidi zbytky po dalnopisu)
+s/\r//
+
+# gcc -MM
+/\<error:/{s//\x1B[0;31m&/;s/$/\x1B[m/;b}
+/\<warning:/{s//\x1B[0;36m&/;s/$/\x1B[m/;b}
+
+# mcc18.exe
+/^[[:alpha:]]:/{s//\~\/wshare/;s/\\/\//g;/\<Error\>.*/{s//\x1B[0;31m & \x1B[m/;b};s/\<Warning\>.*/\x1B[0;36m & \x1B[m/;b}
+
+# hide Warning containing TODO, no Vim quickfix window
+#/^[[:alpha:]]:/{/\<TODO\>/d;s//\~\/wshare/;s/\\/\//g;}
+
+# MPASMWIN.exe
+/\]\s*[[:alpha:]]:\\/{s/^\([[:alpha:]]\+\)\([^]]*\]\)\s*[[:alpha:]]:\([^ ]*\) \([^ ]*\) \(.*\)/\~\/wshare\3:\4: \x1B[0;31m\1\2\5\x1B[m/;s/\\/\//g;s/^[^:]*/\L&/;b}
+
+# mplink.exe
+/^Errors\>\|^Warnings\>/{/: 0$/{s/^/\x1B[0;32m/;s/$/\x1B[m/;b};s/^/\x1B[0;31m/;s/$/\x1B[m/;b}
+/^Error\>/{s/^/\x1B[0;31m/;s/$/\x1B[m/;b}
+/^MPLINK\>/{N;N;s/^/\x1B[0;35m/;s/$/\x1B[m/;b}
+/^MPLIB\>/{N;s/^/\x1B[0;35m/;s/$/\x1B[m/;b}
+
+# mp2hex.exe
+#/^MP2HEX\>/{N;s/^/\x1B[0;35m/;:b;s/$/\x1B[m/;b}
+
+$s/$/\n--------------------------------------------------------------------------------/
+
