@@ -1,0 +1,10 @@
+"\e\C-n": history-search-forward
+"\e\C-p": history-search-backward
+set bell-style visible
+set colored-stats on
+set completion-ignore-case on
+set echo-control-characters off
+set mark-directories on
+set show-all-if-ambiguous on
+set show-all-if-unmodified on
+set visible-stats on
