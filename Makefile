@@ -1,9 +1,4 @@
 # 2015/07/12 Josef Kubin
-#
-# $HeadURL: https://bx.cz/vyvoj/inmatutils/make/c18_mla.make $
-# $LastChangedDate: 2017-11-04 07:36:23 +0100 (Sat, 04 Nov 2017) $
-# $LastChangedBy: josef $
-# $Revision: 174 $
 # ----------------------------------------------------------------------------
 # "THE BEER-WARE LICENSE" (Revision 42):
 # <opentracer_gmail...> wrote this file. As long as you retain this notice you
